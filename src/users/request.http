@@ -5,3 +5,6 @@ Content-Type: application/json
     "email": "josono@gmail.com",
     "password": "jojo@2023"
 }
+
+### Get a single user by id
+GET http://localhost:3000/auth/1

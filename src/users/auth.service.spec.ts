@@ -9,10 +9,21 @@ describe('The authservice', () => {
   let fakeUserService: Partial<UsersService>;
 
   beforeEach(async () => {
+    const users = [];
     fakeUserService = {
-      find: () => Promise.resolve([]),
-      create: (email: string, password: string) =>
-        Promise.resolve({ id: 1, email, password } as User),
+      find: (email) => {
+        const filteredUsers = users.filter((user) => user.email === email);
+        return Promise.resolve(filteredUsers);
+      },
+      create: (email: string, password: string) => {
+        const user = {
+          id: Math.floor(Math.random() * 9999),
+          email,
+          password,
+        } as User;
+        users.push(user);
+        return Promise.resolve(user);
+      },
     };
     const module = await Test.createTestingModule({
       controllers: [UsersController],
@@ -38,21 +49,17 @@ describe('The authservice', () => {
     expect(hash).toBeDefined();
   });
 
-  it('should throw an error if the email is in use', async (done) => {
-    fakeUserService.find = () =>
-      Promise.resolve([{ id: 1, email: 'thom', password: '123' }]);
-    try {
-      await service.signin('thomas@gmail.com', 'tomi333');
-    } catch (error) {
-      done();
-    }
-  });
-
   it('should throw if signin is called with an unused email', async (done) => {
     try {
       await service.signin('adsg@gmail.com', 'tomi3435');
     } catch (error) {
       done();
     }
+  });
+
+  it('It should return a user if the right password is provided', async () => {
+    await service.signup('thomas@gmail.com', 'thom134');
+    const user = await service.signin('thomas@gmail.com', 'thom134');
+    expect(user).toBeDefined();
   });
 });

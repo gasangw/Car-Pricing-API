@@ -38,11 +38,19 @@ describe('The authservice', () => {
     expect(hash).toBeDefined();
   });
 
-  it('should throw an error if the email is in use', async () => {
+  it('should throw an error if the email is in use', async (done) => {
     fakeUserService.find = () =>
       Promise.resolve([{ id: 1, email: 'thom', password: '123' }]);
     try {
       await service.signin('thomas@gmail.com', 'tomi333');
+    } catch (error) {
+      done();
+    }
+  });
+
+  it('should throw if signin is called with an unused email', async (done) => {
+    try {
+      await service.signin('adsg@gmail.com', 'tomi3435');
     } catch (error) {
       done();
     }
